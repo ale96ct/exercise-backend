@@ -15,10 +15,39 @@ public class DatabaseClient {
             connection.close();
     }
 
-    public ArrayList<HashMap> test(String count) throws SQLException{
-        String queryString = "select * from records limit ?";
+    public ArrayList<HashMap> getRecords(String offset, String count) throws SQLException{
+        String queryString = String.join("\n",
+                "SELECT",
+                    "records.id,",
+                    "records.age,",
+                    "workclasses.name AS workclass,",
+                    "education_levels.name AS education_level,",
+                    "records.education_num,",
+                    "marital_statuses.name AS marital_status,",
+                    "occupations.name AS occupation,",
+                    "races.name AS race,",
+                    "sexes.name AS sex,",
+                    "records.capital_gain,",
+                    "records.capital_loss,",
+                    "records.hours_week,",
+                    "countries.name AS country,",
+                    "records.over_50k",
+                "FROM records",
+                "JOIN workclasses ON workclasses.id = records.workclass_id",
+                "JOIN education_levels ON education_levels.id = records.education_level_id",
+                "JOIN marital_statuses ON marital_statuses.id = records.marital_status_id",
+                "JOIN occupations ON occupations.id = records.occupation_id",
+                "JOIN races ON races.id = records.race_id",
+                "JOIN sexes ON sexes.id = records.sex_id",
+                "JOIN countries ON countries.id = records.country_id",
+                "WHERE records.id > ?",
+                "LIMIT ?",
+                ";"
+        );
         PreparedStatement statement = connection.prepareStatement(queryString);
-        statement.setString(1, count);
+        statement.setString(1, offset);
+        statement.setString(2, count);
+
         statement.setQueryTimeout(30);
         ResultSet rs = statement.executeQuery();
 
@@ -30,7 +59,8 @@ public class DatabaseClient {
             for (int i = 1; i <= columnsNumber; i++) {
                 result.put(rsmd.getColumnName(i), rs.getString(i));
             }
-            results.add(result);
+            results.add(new HashMap(result));
+            result.clear();
         }
         return results;
     }

@@ -25,11 +25,9 @@ class WebHandler implements HttpHandler {
     public void handle(HttpExchange exchange) throws IOException {
         try {
             URI uri = exchange.getRequestURI();
-            System.out.println("Path: " + uri.getPath());
-
             if ("GET".equals(exchange.getRequestMethod())) {
-                if ("/test".equals(uri.getPath())) {
-                    handleTest(exchange);
+                if("/records".equals(uri.getPath())) {
+                    handleGetRecords(exchange);
                     return;
                 }
             }
@@ -55,15 +53,17 @@ class WebHandler implements HttpHandler {
         return params;
     }
 
-    private void handleTest(HttpExchange exchange) throws IOException, SQLException {
+    private void handleGetRecords(HttpExchange exchange) throws IOException, SQLException {
         URI uri = exchange.getRequestURI();
-        System.out.println("Query: " + uri.getQuery());
         Map<String, String> params = getParams(uri.getQuery());
+        String offset = params.get("offset");
         String count = params.get("count");
-        ArrayList<HashMap> results = databaseClient.test(count);
+
+        ArrayList<HashMap> results = databaseClient.getRecords(offset, count);
         HashMap<String, ArrayList> response = new HashMap();
-        response.put("records", results);
+        response.put("denormalized_records", results);
         String json_response = serializer.toJson(response);
+
         exchange.sendResponseHeaders(200, json_response.length());
         OutputStream os = exchange.getResponseBody();
         os.write(json_response.getBytes());
