@@ -95,4 +95,49 @@ public class DatabaseClient {
         }
         return results;
     }
+
+    public ArrayList<HashMap> getAllRecords() throws SQLException{
+        String queryString = String.join("\n",
+                "SELECT",
+                "records.id,",
+                "records.age,",
+                "workclasses.name AS workclass,",
+                "education_levels.name AS education_level,",
+                "records.education_num,",
+                "marital_statuses.name AS marital_status,",
+                "occupations.name AS occupation,",
+                "races.name AS race,",
+                "sexes.name AS sex,",
+                "records.capital_gain,",
+                "records.capital_loss,",
+                "records.hours_week,",
+                "countries.name AS country,",
+                "records.over_50k",
+                "FROM records",
+                "JOIN workclasses ON workclasses.id = records.workclass_id",
+                "JOIN education_levels ON education_levels.id = records.education_level_id",
+                "JOIN marital_statuses ON marital_statuses.id = records.marital_status_id",
+                "JOIN occupations ON occupations.id = records.occupation_id",
+                "JOIN races ON races.id = records.race_id",
+                "JOIN sexes ON sexes.id = records.sex_id",
+                "JOIN countries ON countries.id = records.country_id",
+                ";"
+        );
+        PreparedStatement statement = connection.prepareStatement(queryString);
+        statement.setQueryTimeout(30);
+        ResultSet rs = statement.executeQuery();
+
+        ResultSetMetaData rsmd = rs.getMetaData();
+        int columnsNumber = rsmd.getColumnCount();
+        HashMap<String, String> result = new HashMap<>();
+        ArrayList<HashMap> results = new ArrayList<>();
+        while(rs.next()) {
+            for (int i = 1; i <= columnsNumber; i++) {
+                result.put(rsmd.getColumnName(i), rs.getString(i));
+            }
+            results.add(new HashMap(result));
+            result.clear();
+        }
+        return results;
+    }
 }
