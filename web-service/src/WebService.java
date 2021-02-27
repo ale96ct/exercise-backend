@@ -8,10 +8,12 @@ public class WebService
     public static void main(String[] args) {
 
         try {
+            // connect to database
             DatabaseClient databaseClient = new DatabaseClient();
             String url = "jdbc:sqlite:./../database/exercise01.sqlite";
             databaseClient.connect(url);
 
+            // start server
             HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
             server.createContext("/", new WebHandler(databaseClient));
             server.setExecutor(null);

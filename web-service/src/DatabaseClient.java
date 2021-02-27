@@ -15,7 +15,8 @@ public class DatabaseClient {
             connection.close();
     }
 
-    public ArrayList<HashMap> getRecords(String offset, String count) throws SQLException{
+    public ArrayList<HashMap> getRecords(String offset, String count) throws SQLException {
+        // prepare query
         String queryString = String.join("\n",
             "SELECT",
                 "records.id,",
@@ -48,9 +49,12 @@ public class DatabaseClient {
         statement.setString(1, offset);
         statement.setString(2, count);
 
+        // execute query
         statement.setQueryTimeout(30);
         ResultSet rs = statement.executeQuery();
 
+        // build object structure for the controller
+        // (list of records)
         ResultSetMetaData rsmd = rs.getMetaData();
         int columnsNumber = rsmd.getColumnCount();
         HashMap<String, String> result = new HashMap<>();
@@ -66,6 +70,7 @@ public class DatabaseClient {
     }
 
     public HashMap<String, String> getStats(String aggregType, String aggregValue) throws SQLException {
+        // prepare query
         String queryString = String.join("\n",
             "SELECT",
                 "sum(capital_gain),",
@@ -82,9 +87,12 @@ public class DatabaseClient {
         PreparedStatement statement = connection.prepareStatement(queryString);
         statement.setString(1, aggregValue);
 
+        // execute query
         statement.setQueryTimeout(30);
         ResultSet rs = statement.executeQuery();
 
+        // build object structure for the controller
+        // (dictionary of stats)
         ResultSetMetaData rsmd = rs.getMetaData();
         int columnsNumber = rsmd.getColumnCount();
         HashMap<String, String> results = new HashMap<>();
@@ -96,7 +104,8 @@ public class DatabaseClient {
         return results;
     }
 
-    public ArrayList<HashMap> getAllRecords() throws SQLException{
+    public ArrayList<HashMap> getAllRecords() throws SQLException {
+        // prepare and execute query
         String queryString = String.join("\n",
                 "SELECT",
                 "records.id,",
@@ -127,6 +136,8 @@ public class DatabaseClient {
         statement.setQueryTimeout(30);
         ResultSet rs = statement.executeQuery();
 
+        // build object structure for the controller
+        // (list of records)
         ResultSetMetaData rsmd = rs.getMetaData();
         int columnsNumber = rsmd.getColumnCount();
         HashMap<String, String> result = new HashMap<>();
